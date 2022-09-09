@@ -94,12 +94,12 @@ namespace cg
 		static color from_float3(const float3& in)
 		{
 			// TODO Lab: 1.02 Implement `cg::color` and `cg::unsigned_color` structs
-			return color{};
+			return color{in.x, in.y, in.z};
 		};
 		float3 to_float3() const
 		{
 			// TODO Lab: 1.02 Implement `cg::color` and `cg::unsigned_color` structs
-			return float3{};
+			return float3{r, g, b};
 		}
 		float r;
 		float g;
@@ -111,17 +111,29 @@ namespace cg
 		static unsigned_color from_color(const color& color)
 		{
 			// TODO Lab: 1.02 Implement `cg::color` and `cg::unsigned_color` structs
-			return unsigned_color{};
+			unsigned_color out{};
+			out.r = std::clamp(static_cast<int>(255.f * color.r), 0, 255);
+			out.g = std::clamp(static_cast<int>(255.f * color.g), 0, 255);
+			out.b = std::clamp(static_cast<int>(255.f * color.b), 0, 255);
+			return out;
 		};
 		static unsigned_color from_float3(const float3& color)
 		{
 			// TODO Lab: 1.02 Implement `cg::color` and `cg::unsigned_color` structs
-			return unsigned_color{};
+			unsigned_color out{};
+			float3 preprocessed = clamp(255.f * color, 0.f, 255.f);
+			out.r = static_cast<uint8_t> (preprocessed.x);
+			out.g = static_cast<uint8_t> (preprocessed.y);
+			out.b = static_cast<uint8_t> (preprocessed.z);
+			return out
 		};
 		float3 to_float3() const
 		{
 			// TODO Lab: 1.02 Implement `cg::color` and `cg::unsigned_color` structs
-			return float3{};
+			return float3{static_cast<float>(r),
+						  static_cast<float>(g),
+						  static_cast<float>(b)} /
+				   255.f;
 		};
 		uint8_t r;
 		uint8_t g;
