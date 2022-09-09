@@ -14,8 +14,7 @@ void cg::renderer::rasterization_renderer::init()
 					cg::vertex, cg::unsigned_color>>();
 	rasterizer->set_viewport(settings->width, settings->height);
 	render_target = std::make_shared<cg::resource<cg::unsigned_color>>(
-											   settings->width, settings->height
-									   );
+			settings->width, settings->height);
 	rasterizer->set_render_target(render_target);
 }
 void cg::renderer::rasterization_renderer::render()
