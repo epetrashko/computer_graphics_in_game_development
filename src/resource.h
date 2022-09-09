@@ -36,11 +36,15 @@ namespace cg
 	template<typename T>
 	inline resource<T>::resource(size_t size)
 	{
+		data.resize(size);
+		stride = 0;
 		// TODO Lab: 1.02 Implement `cg::resource` class
 	}
 	template<typename T>
 	inline resource<T>::resource(size_t x_size, size_t y_size)
 	{
+		data.resize(x_size * y_size);
+		stride = x_size;
 		// TODO Lab: 1.02 Implement `cg::resource` class
 	}
 	template<typename T>
@@ -51,38 +55,38 @@ namespace cg
 	inline const T* resource<T>::get_data()
 	{
 		// TODO Lab: 1.02 Implement `cg::resource` class
-		return nullptr;
+		return data.data();
 	}
 	template<typename T>
 	inline T& resource<T>::item(size_t item)
 	{
 		// TODO Lab: 1.02 Implement `cg::resource` class
-		return T();
+		return data.at(item);
 	}
 	template<typename T>
 	inline T& resource<T>::item(size_t x, size_t y)
 	{
 		// TODO Lab: 1.02 Implement `cg::resource` class
-		return T();
+		return data.at(y * stride + x);
 	}
 	template<typename T>
 	inline size_t resource<T>::get_size_in_bytes() const
 	{
 		// TODO Lab: 1.02 Implement `cg::resource` class
-		return 0;
+		return data.size() * item_size;
 	}
 	template<typename T>
 	inline size_t resource<T>::get_number_of_elements() const
 	{
 		// TODO Lab: 1.02 Implement `cg::resource` class
-		return 0;
+		return data.size();
 	}
 
 	template<typename T>
 	inline size_t resource<T>::get_stride() const
 	{
 		// TODO Lab: 1.02 Implement `cg::resource` class
-		return 0;
+		return stride;
 	}
 
 	struct color
