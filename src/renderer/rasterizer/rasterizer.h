@@ -120,6 +120,38 @@ namespace cg::renderer
 				vertex.x = (vertex.x + 1.f) * width / 2.f;
 				vertex.y = (vertex.y + 1.f) * height / 2.f;
 			}
+			float2 vertex_a{vertices[0].x, vertices[0].y};
+			float2 vertex_b{vertices[1].x, vertices[1].y};
+			float2 vertex_c{vertices[2].x, vertices[2].y};
+
+			float2 min_vertex = min(vertex_a, min(vertex_b, vertex_c));
+			float2 bounding_box_begin = round(clamp(min_vertex, float2{
+																		0,
+																		0,
+																},
+													float2{static_cast<float>(width - 1), static_cast<float>(height - 1)}));
+
+			float2 max_vertex = max(vertex_a, max(vertex_b, vertex_c));
+			float2 bounding_box_end = round(clamp(max_vertex, float2{
+																	  0,
+																	  0,
+															  },
+												  float2{static_cast<float>(width - 1), static_cast<float>(height - 1)}));
+
+			for (float x = bounding_box_begin.x; x <= bounding_box_end.x; x += 1.f) {
+				for (float y = bounding_box_begin.y; y <= bounding_box_end.y; y += 1.f) {
+					float2 point{x, y};
+					float edge0 = edge_function(vertex_a, vertex_b, point);
+					float edge1 = edge_function(vertex_b, vertex_c, point);
+					float edge2 = edge_function(vertex_c, vertex_a, point);
+					if (edge0 > 0.f && edge1 > 0.f && edge2 > 0.f) {
+						size_t u_x = static_cast<size_t>(x);
+						size_t u_y = static_cast<size_t>(y);
+						auto pixel_result = pixel_shader(vertices[0], 0.f);
+						render_target->item(u_x, u_y) = RT::from_color(pixel_result);
+					}
+				}
+			}
 		}
 	}
 
