@@ -146,6 +146,8 @@ namespace cg::renderer
 															  },
 												  float2{static_cast<float>(width - 1), static_cast<float>(height - 1)}));
 
+			float edge = edge_function(vertex_a, vertex_b, vertex_c);
+
 			for (float x = bounding_box_begin.x; x <= bounding_box_end.x; x += 1.f) {
 				for (float y = bounding_box_begin.y; y <= bounding_box_end.y; y += 1.f) {
 					float2 point{x, y};
@@ -153,10 +155,19 @@ namespace cg::renderer
 					float edge1 = edge_function(vertex_b, vertex_c, point);
 					float edge2 = edge_function(vertex_c, vertex_a, point);
 					if (edge0 > 0.f && edge1 > 0.f && edge2 > 0.f) {
+						float u = edge1 / edge;
+						float v = edge2 / edge;
+						float w = edge0 / edge;
+						float depth = u*vertices[0].z + v*vertices[1].z + w*vertices[2].z;
+
 						size_t u_x = static_cast<size_t>(x);
 						size_t u_y = static_cast<size_t>(y);
-						auto pixel_result = pixel_shader(vertices[0], 0.f);
-						render_target->item(u_x, u_y) = RT::from_color(pixel_result);
+						if (depth_test(depth, u_x, u_y)){
+							auto pixel_result = pixel_shader(vertices[0], 0.f);
+							render_target->item(u_x, u_y) = RT::from_color(pixel_result);
+							if (depth_buffer)
+								depth_buffer->item(u_x, u_y) = depth;
+						}
 					}
 				}
 			}
