@@ -118,7 +118,7 @@ namespace cg::renderer
 				vertex.z = processed_vertex.first.z / processed_vertex.first.w;
 
 				vertex.x = (vertex.x + 1.f) * width / 2.f;
-				vertex.y = (vertex.y + 1.f) * height / 2.f;
+				vertex.y = (-vertex.y + 1.f) * height / 2.f;
 			}
 			float2 vertex_a{vertices[0].x, vertices[0].y};
 			float2 vertex_b{vertices[1].x, vertices[1].y};
