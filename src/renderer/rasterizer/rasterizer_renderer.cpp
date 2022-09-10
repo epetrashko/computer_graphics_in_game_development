@@ -49,6 +49,14 @@ void cg::renderer::rasterization_renderer::render()
 		return std::make_pair(processed, vertex_data);
 	};
 
+	rasterizer->pixel_shader = [](cg::vertex vertex_data, float z) {
+		return cg::color{
+			vertex_data.ambient_r,
+			vertex_data.ambient_g,
+			vertex_data.ambient_b,
+		};
+	};
+
 	auto stop = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<float, std::milli> duration = stop - start;
 	std::cout << "Rasterization took " << duration.count() << "ms\n";
