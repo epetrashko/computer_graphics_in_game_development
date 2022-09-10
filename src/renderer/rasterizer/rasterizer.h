@@ -53,9 +53,11 @@ namespace cg::renderer
 			std::shared_ptr<resource<float>> in_depth_buffer)
 	{
 		if (in_render_target)
-			render_target = in_render_target;
 		// TODO Lab: 1.02 Implement `set_render_target`, `set_viewport`, `clear_render_target` methods of `cg::renderer::rasterizer` class
+		render_target = in_render_target;
 		// TODO Lab: 1.06 Adjust `set_render_target`, and `clear_render_target` methods of `cg::renderer::rasterizer` class to consume a depth buffer
+		if (in_depth_buffer)
+			depth_buffer = in_depth_buffer;
 	}
 
 	template<typename VB, typename RT>
@@ -73,6 +75,12 @@ namespace cg::renderer
 		if (render_target) {
 			for (size_t i = 0; i < render_target->get_number_of_elements(); i++) {
 				render_target->item(i) = in_clear_value;
+			}
+		}
+
+		if (depth_buffer) {
+			for (size_t i = 0; i <depth_buffer->get_number_of_elements(); i++){
+				depth_buffer->item(i) = in_depth;
 			}
 		}
 		// TODO Lab: 1.02 Implement `set_render_target`, `set_viewport`, `clear_render_target` methods of `cg::renderer::rasterizer` class
