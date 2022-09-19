@@ -16,7 +16,6 @@ cg::world::model::~model() {}
 
 void cg::world::model::load_obj(const std::filesystem::path& model_path)
 {
-	// TODO Lab: 1.03 Using `tinyobjloader` implement `load_obj`, `allocate_buffers`, `compute_normal`, `fill_vertex_data`, `fill_buffers`, `get_vertex_buffers`, `get_index_buffers` methods of `cg::world::model` class
 	tinyobj::ObjReaderConfig readerConfig{};
 	readerConfig.mtl_search_path = model_path.parent_path().string();
 	readerConfig.triangulate = true;
@@ -36,7 +35,6 @@ void cg::world::model::load_obj(const std::filesystem::path& model_path)
 
 void model::allocate_buffers(const std::vector<tinyobj::shape_t>& shapes)
 {
-	// TODO Lab: 1.03 Using `tinyobjloader` implement `load_obj`, `allocate_buffers`, `compute_normal`, `fill_vertex_data`, `fill_buffers`, `get_vertex_buffers`, `get_index_buffers` methods of `cg::world::model` class
 	for (const auto& shape: shapes) {
 		size_t index_offset = 0;
 		unsigned int vertex_buffer_size = 0;
@@ -69,7 +67,6 @@ void model::allocate_buffers(const std::vector<tinyobj::shape_t>& shapes)
 
 float3 cg::world::model::compute_normal(const tinyobj::attrib_t& attrib, const tinyobj::mesh_t& mesh, size_t index_offset)
 {
-	// TODO Lab: 1.03 Using `tinyobjloader` implement `load_obj`, `allocate_buffers`, `compute_normal`, `fill_vertex_data`, `fill_buffers`, `get_vertex_buffers`, `get_index_buffers` methods of `cg::world::model` class
 	auto a_id = mesh.indices[index_offset];
 	auto b_id = mesh.indices[index_offset + 1];
 	auto c_id = mesh.indices[index_offset + 2];
@@ -96,7 +93,6 @@ float3 cg::world::model::compute_normal(const tinyobj::attrib_t& attrib, const t
 
 void model::fill_vertex_data(cg::vertex& vertex, const tinyobj::attrib_t& attrib, const tinyobj::index_t idx, const float3 computed_normal, const tinyobj::material_t material)
 {
-	// TODO Lab: 1.03 Using `tinyobjloader` implement `load_obj`, `allocate_buffers`, `compute_normal`, `fill_vertex_data`, `fill_buffers`, `get_vertex_buffers`, `get_index_buffers` methods of `cg::world::model` clas
 	vertex.x = attrib.vertices[3 * idx.vertex_index];
 	vertex.y = attrib.vertices[3 * idx.vertex_index + 1];
 	vertex.z = attrib.vertices[3 * idx.vertex_index + 2];
@@ -136,8 +132,6 @@ void model::fill_vertex_data(cg::vertex& vertex, const tinyobj::attrib_t& attrib
 
 void model::fill_buffers(const std::vector<tinyobj::shape_t>& shapes, const tinyobj::attrib_t& attrib, const std::vector<tinyobj::material_t>& materials, const std::filesystem::path& base_folder)
 {
-	// TODO Lab: 1.03 Using `tinyobjloader` implement `load_obj`, `allocate_buffers`, `compute_normal`, `fill_vertex_data`, `fill_buffers`, `get_vertex_buffers`, `get_index_buffers` methods of `cg::world::model` class
-
 	for (size_t s = 0; s < shapes.size(); s++) {
 		size_t index_offset = 0;
 		unsigned int vertex_buffer_id = 0;
@@ -180,14 +174,12 @@ void model::fill_buffers(const std::vector<tinyobj::shape_t>& shapes, const tiny
 const std::vector<std::shared_ptr<cg::resource<cg::vertex>>>&
 cg::world::model::get_vertex_buffers() const
 {
-	// TODO Lab: 1.03 Using `tinyobjloader` implement `load_obj`, `allocate_buffers`, `compute_normal`, `fill_vertex_data`, `fill_buffers`, `get_vertex_buffers`, `get_index_buffers` methods of `cg::world::model` class
 	return vertex_buffers;
 }
 
 const std::vector<std::shared_ptr<cg::resource<unsigned int>>>&
 cg::world::model::get_index_buffers() const
 {
-	// TODO Lab: 1.03 Using `tinyobjloader` implement `load_obj`, `allocate_buffers`, `compute_normal`, `fill_vertex_data`, `fill_buffers`, `get_vertex_buffers`, `get_index_buffers` methods of `cg::world::model` class
 	return index_buffers;
 }
 

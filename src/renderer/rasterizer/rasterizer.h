@@ -53,9 +53,7 @@ namespace cg::renderer
 			std::shared_ptr<resource<float>> in_depth_buffer)
 	{
 		if (in_render_target)
-		// TODO Lab: 1.02 Implement `set_render_target`, `set_viewport`, `clear_render_target` methods of `cg::renderer::rasterizer` class
 		render_target = in_render_target;
-		// TODO Lab: 1.06 Adjust `set_render_target`, and `clear_render_target` methods of `cg::renderer::rasterizer` class to consume a depth buffer
 		if (in_depth_buffer)
 			depth_buffer = in_depth_buffer;
 	}
@@ -65,7 +63,6 @@ namespace cg::renderer
 	{
 		height = in_height;
 		width = in_width;
-		// TODO Lab: 1.02 Implement `set_render_target`, `set_viewport`, `clear_render_target` methods of `cg::renderer::rasterizer` class
 	}
 
 	template<typename VB, typename RT>
@@ -83,8 +80,6 @@ namespace cg::renderer
 				depth_buffer->item(i) = in_depth;
 			}
 		}
-		// TODO Lab: 1.02 Implement `set_render_target`, `set_viewport`, `clear_render_target` methods of `cg::renderer::rasterizer` class
-		// TODO Lab: 1.06 Adjust `set_render_target`, and `clear_render_target` methods of `cg::renderer::rasterizer` class to consume a depth buffer
 	}
 
 	template<typename VB, typename RT>
@@ -104,9 +99,6 @@ namespace cg::renderer
 	template<typename VB, typename RT>
 	inline void rasterizer<VB, RT>::draw(size_t num_vertexes, size_t vertex_offset)
 	{
-		// TODO Lab: 1.04 Implement `cg::world::camera` class
-		// TODO Lab: 1.05 Add `Rasterization` and `Pixel shader` stages to `draw` method of `cg::renderer::rasterizer`
-		// TODO Lab: 1.06 Add `Depth test` stage to `draw` method of `cg::renderer::rasterizer`
 		size_t vertex_id = vertex_offset;
 		while (vertex_id < vertex_offset + num_vertexes) {
 			std::vector<VB> vertices(3);
@@ -178,14 +170,12 @@ namespace cg::renderer
 	inline float
 	rasterizer<VB, RT>::edge_function(float2 a, float2 b, float2 c)
 	{
-		// TODO Lab: 1.05 Implement `cg::renderer::rasterizer::edge_function` method
 		return (c.x - a.x) * (b.y - a.y) - (c.y - a.y) * (b.x - a.x);
 	}
 
 	template<typename VB, typename RT>
 	inline bool rasterizer<VB, RT>::depth_test(float z, size_t x, size_t y)
 	{
-		// TODO Lab: 1.06 Implement `depth_test` function of `cg::renderer::rasterizer` class
 		if (!depth_buffer)
 		{
 			return true;
