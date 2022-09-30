@@ -56,8 +56,19 @@ void cg::renderer::ray_tracing_renderer::render()
 		payload.color = {0.f, 0.f, (ray.direction.y + 1.f) * 0.5f};
 		return payload;
 	};
-	raytracer->closest_hit_shader = [](const ray& ray, payload& payload, const triangle<cg::vertex>& triangle, size_t depth) {
-		payload.color = cg::color::from_float3(triangle.diffuse);
+	raytracer->closest_hit_shader = [&](const ray& ray, payload& payload, const triangle<cg::vertex>& triangle, size_t depth) {
+		float3 result_color = triangle.emissive;
+		float3 normal = normalize(
+				payload.bary.x * triangle.na +
+				payload.bary.y * triangle.nb +
+				payload.bary.z * triangle.nc
+				);
+		float3 position = ray.position + payload.t *  ray.direction;
+		for (auto& light: lights){
+			cg::renderer::ray to_light(position, light.position - position);
+			result_color += triangle.diffuse * light.color * std::max(dot(normal, to_light.direction), 0.f);
+		}
+		payload.color = cg::color::from_float3(result_color);
 		return payload;
 	};
 	raytracer->build_acceleration_structure();
