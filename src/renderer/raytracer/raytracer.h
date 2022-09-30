@@ -151,12 +151,14 @@ namespace cg::renderer
 	inline void raytracer<VB, RT>::set_vertex_buffers(std::vector<std::shared_ptr<cg::resource<VB>>> in_vertex_buffers)
 	{
 		// TODO Lab: 2.02 Implement `set_vertex_buffers` and `set_index_buffers` of `raytracer` class
+		vertex_buffers = in_vertex_buffers;
 	}
 
 	template<typename VB, typename RT>
 	void raytracer<VB, RT>::set_index_buffers(std::vector<std::shared_ptr<cg::resource<unsigned int>>> in_index_buffers)
 	{
 		// TODO Lab: 2.02 Implement `set_vertex_buffers` and `set_index_buffers` of `raytracer` class
+		index_buffers = in_index_buffers;
 	}
 
 	template<typename VB, typename RT>
@@ -173,8 +175,9 @@ namespace cg::renderer
 	{
 		// TODO Lab: 2.01 Implement `ray_generation` and `trace_ray` method of `raytracer` class
 		// TODO Lab: 2.06 Implement TAA in `ray_generation` method of `raytracer` class
-		for (int x=0; x < width; x++){
-			for (int y=0; y < height; y++){
+		for (int x=0; x < width; x++) {
+#pragma omp parallel for
+			for (int y=0; y < height; y++) {
 				float u = (2.f * x) / static_cast<float>(width - 1) - 1.f;
 				float v = (2.f * y) / static_cast<float>(height - 1) - 1.f;
 				u *= static_cast<float>(width)/ static_cast<float>(height);
