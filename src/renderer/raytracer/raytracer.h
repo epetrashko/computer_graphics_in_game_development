@@ -242,6 +242,8 @@ namespace cg::renderer
 			if (payload.t > min_t && payload.t < closest_hit_payload.t) {
 				closest_hit_payload = payload;
 				closest_triangle = &triangle;
+				if (any_hit_shader)
+					return any_hit_shader(ray, payload, triangle);
 			}
 		}
 
