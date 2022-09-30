@@ -123,6 +123,7 @@ namespace cg::renderer
 			std::shared_ptr<resource<RT>> in_render_target)
 	{
 		// TODO Lab: 2.01 Implement `set_render_target`, `set_viewport`, and `clear_render_target` methods of `raytracer` class
+		render_target = in_render_target;
 	}
 
 	template<typename VB, typename RT>
@@ -131,6 +132,8 @@ namespace cg::renderer
 	{
 		// TODO Lab: 2.01 Implement `set_render_target`, `set_viewport`, and `clear_render_target` methods of `raytracer` class
 		// TODO Lab: 2.06 Add `history` resource in `raytracer` class
+		width = in_width;
+		height = in_height;
 	}
 
 	template<typename VB, typename RT>
@@ -139,6 +142,9 @@ namespace cg::renderer
 	{
 		// TODO Lab: 2.01 Implement `set_render_target`, `set_viewport`, and `clear_render_target` methods of `raytracer` class
 		// TODO Lab: 2.06 Add `history` resource in `raytracer` class
+		for (size_t i =0; i < render_target -> get_number_of_elements(); i++) {
+			render_target->item(i) = in_clear_value;
+		}
 	}
 
 	template<typename VB, typename RT>
