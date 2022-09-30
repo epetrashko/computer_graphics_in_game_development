@@ -182,7 +182,9 @@ namespace cg::renderer
 				ray ray(position, ray_direction);
 
 				payload payload = trace_ray(ray, depth);
-				render_target->item(x, y) = payload.color;
+				render_target->item(x, y) = unsigned_color::from_color(
+						payload.color
+						);
 			}
 		}
 	}
