@@ -75,6 +75,17 @@ void cg::renderer::ray_tracing_renderer::render()
 		payload.color = cg::color::from_float3(result_color);
 		return payload;
 	};
+
+	shadow_raytracer->miss_shader = [](const ray& ray) {
+		payload payload{};
+		payload.t = -1.f;
+		return payload;
+	};
+
+	shadow_raytracer->any_hit_shader = [](const ray& ray, payload& payload, const triangle<cg::vertex>& triangle) {
+		return payload;
+	};
+
 	raytracer->build_acceleration_structure();
 	shadow_raytracer -> build_acceleration_structure();
 
