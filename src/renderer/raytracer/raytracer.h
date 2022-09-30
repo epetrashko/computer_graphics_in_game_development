@@ -148,6 +148,8 @@ namespace cg::renderer
 		// TODO Lab: 2.06 Add `history` resource in `raytracer` class
 		width = in_width;
 		height = in_height;
+
+		history = std::make_shared<cg::resource<float3>>(width, height);
 	}
 
 	template<typename VB, typename RT>
@@ -158,6 +160,7 @@ namespace cg::renderer
 		// TODO Lab: 2.06 Add `history` resource in `raytracer` class
 		for (size_t i =0; i < render_target -> get_number_of_elements(); i++) {
 			render_target->item(i) = in_clear_value;
+			history -> item(i)= float3 {0.f, 0.f, 0.f};
 		}
 	}
 
@@ -295,6 +298,30 @@ namespace cg::renderer
 	float2 raytracer<VB, RT>::get_jitter(int frame_id)
 	{
 		// TODO Lab: 2.06 Implement `get_jitter` method of `raytracer` class
+		float2 result{0.f, 0.f};
+
+		constexpr int base_x = 2;
+		int index = frame_id + 1;
+		float inv_base = 1.f / base_x;
+		float fraction = inv_base;
+
+		while(index > 0) {
+			result.x += (index % base_x) * fraction;
+			index /= base_x;
+			fraction *= inv_base;
+		}
+
+		constexpr int base_y = 3;
+		index = frame_id + 1;
+		inv_base = 1.f / base_y;
+		fraction = inv_base;
+
+		while(index > 0) {
+			result.y += (index % base_y) * fraction;
+			index /= base_y;
+			fraction *= inv_base;
+		}
+		return result - 0.5f;
 	}
 
 
