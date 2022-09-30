@@ -33,6 +33,11 @@ void cg::renderer::ray_tracing_renderer::init()
 	raytracer->set_vertex_buffers(model->get_vertex_buffers());
 	raytracer->set_index_buffers(model->get_index_buffers());
 
+	lights.push_back({
+		float3 {0.f, 1.58f, -0.03f},
+			float3 {0.78f, 0.78f, 0.78f}
+	});
+
 	// TODO Lab: 2.01 Add `render_target`, `camera`, and `raytracer` in `ray_tracing_renderer` class
 	// TODO Lab: 2.03 Add light information to `lights` array of `ray_tracing_renderer`
 	// TODO Lab: 2.04 Initialize `shadow_raytracer` in `ray_tracing_renderer`
@@ -68,7 +73,7 @@ void cg::renderer::ray_tracing_renderer::render()
 			);
 	auto stop = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<float, std::milli> raytracing_duration = stop - start;
-	std::cout << "Raytracing took" << raytracing_duration.count() << "ms\n";
+	std::cout << "Raytracing took " << raytracing_duration.count() << "ms\n";
 
 	cg::utils::save_resource(*render_target, settings->result_path);
 	// TODO Lab: 2.01 Implement `miss_shader`, image clearing, calling `ray_generation`, and saving in `ray_tracing_renderer` class
