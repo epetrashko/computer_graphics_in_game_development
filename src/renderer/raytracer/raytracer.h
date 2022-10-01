@@ -68,7 +68,7 @@ namespace cg::renderer
 
 		ambient = {vertex_a.ambient_r, vertex_a.ambient_g, vertex_a.ambient_b};
 		diffuse = {vertex_a.diffuse_r, vertex_a.diffuse_g, vertex_a.diffuse_b};
-		emissive = {vertex_a.emissive_r, vertex_a.emissive_b, vertex_a.emissive_b};
+		emissive = {vertex_a.emissive_r, vertex_a.emissive_g, vertex_a.emissive_b};
 	}
 
 	template<typename VB>
@@ -222,12 +222,13 @@ namespace cg::renderer
 					payload payload = trace_ray(ray, depth);
 					auto& history_pixel = history->item(x, y);
 					history_pixel +=
-							float3{
+							sqrt(float3{
 									payload.color.r,
 									payload.color.g,
 									payload.color.b,
-							} * frame_weight;
-					render_target->item(x, y) = RT::from_float3(history_pixel);
+							} * frame_weight);
+					if (frame_id == accumulation_num - 1)
+						render_target->item(x, y) = RT::from_float3(history_pixel);
 				}
 			}
 		}
