@@ -55,16 +55,16 @@ namespace cg::renderer
 			const VB& vertex_a, const VB& vertex_b, const VB& vertex_c)
 	{
 		// TODO Lab: 2.02 Implement a constructor of `triangle` struct
-		a = float3 {vertex_a.x, vertex_a.y, vertex_a.z};
-		b = float3 {vertex_b.x, vertex_b.y, vertex_b.z};
-		c = float3 {vertex_c.x, vertex_c.y, vertex_c.z};
+		a = float3{vertex_a.x, vertex_a.y, vertex_a.z};
+		b = float3{vertex_b.x, vertex_b.y, vertex_b.z};
+		c = float3{vertex_c.x, vertex_c.y, vertex_c.z};
 
 		ba = b - a;
 		ca = c - a;
 
-		na = float3  {vertex_a.nx, vertex_a.ny, vertex_a.nz};
-		nb = float3  {vertex_b.nx, vertex_b.ny, vertex_b.nz};
-		nc = float3  {vertex_c.nx, vertex_c.ny, vertex_c.nz};
+		na = float3{vertex_a.nx, vertex_a.ny, vertex_a.nz};
+		nb = float3{vertex_b.nx, vertex_b.ny, vertex_b.nz};
+		nc = float3{vertex_c.nx, vertex_c.ny, vertex_c.nz};
 
 		ambient = {vertex_a.ambient_r, vertex_a.ambient_g, vertex_a.ambient_b};
 		diffuse = {vertex_a.diffuse_r, vertex_a.diffuse_g, vertex_a.diffuse_b};
@@ -158,9 +158,9 @@ namespace cg::renderer
 	{
 		// TODO Lab: 2.01 Implement `set_render_target`, `set_viewport`, and `clear_render_target` methods of `raytracer` class
 		// TODO Lab: 2.06 Add `history` resource in `raytracer` class
-		for (size_t i =0; i < render_target -> get_number_of_elements(); i++) {
+		for (size_t i = 0; i < render_target->get_number_of_elements(); i++) {
 			render_target->item(i) = in_clear_value;
-			history -> item(i)= float3 {0.f, 0.f, 0.f};
+			history->item(i) = float3{0.f, 0.f, 0.f};
 		}
 	}
 
@@ -182,17 +182,16 @@ namespace cg::renderer
 	inline void raytracer<VB, RT>::build_acceleration_structure()
 	{
 		// TODO Lab: 2.02 Fill `triangles` vector in `build_acceleration_structure` of `raytracer` class
-		for (size_t shape_id =0; shape_id < index_buffers.size(); shape_id++){
+		for (size_t shape_id = 0; shape_id < index_buffers.size(); shape_id++) {
 			auto& index_buffer = index_buffers[shape_id];
 			auto& vertex_buffer = vertex_buffers[shape_id];
 			size_t index_id = 0;
 			aabb<VB> aabb;
-			while(index_id < index_buffer->get_number_of_elements()){
+			while (index_id < index_buffer->get_number_of_elements()) {
 				triangle<VB> triangle(
 						vertex_buffer->item(index_buffer->item(index_id++)),
 						vertex_buffer->item(index_buffer->item(index_id++)),
-						vertex_buffer->item(index_buffer->item(index_id++))
-						);
+						vertex_buffer->item(index_buffer->item(index_id++)));
 				aabb.add_triangle(triangle);
 			}
 			acceleration_structures.push_back(aabb);
@@ -207,19 +206,29 @@ namespace cg::renderer
 	{
 		// TODO Lab: 2.01 Implement `ray_generation` and `trace_ray` method of `raytracer` class
 		// TODO Lab: 2.06 Implement TAA in `ray_generation` method of `raytracer` class
-		for (int x=0; x < width; x++) {
+		float frame_weight = 1.f / static_cast<float>(accumulation_num);
+		for (int frame_id = 0; frame_id < accumulation_num; frame_id++) {
+			std::cout << "Tracing frame #" << frame_id + 1 << "\n";
+			float2 jitter = get_jitter(frame_id);
+			for (int x = 0; x < width; x++) {
 #pragma omp parallel for
-			for (int y=0; y < height; y++) {
-				float u = (2.f * x) / static_cast<float>(width - 1) - 1.f;
-				float v = (2.f * y) / static_cast<float>(height - 1) - 1.f;
-				u *= static_cast<float>(width)/ static_cast<float>(height);
-				float3 ray_direction = direction + u * right - v * up;
-				ray ray(position, ray_direction);
+				for (int y = 0; y < height; y++) {
+					float u = (2.f * x + jitter.x) / static_cast<float>(width - 1) - 1.f;
+					float v = (2.f * y + jitter.y) / static_cast<float>(height - 1) - 1.f;
+					u *= static_cast<float>(width) / static_cast<float>(height);
+					float3 ray_direction = direction + u * right - v * up;
+					ray ray(position, ray_direction);
 
-				payload payload = trace_ray(ray, depth);
-				render_target->item(x, y) = unsigned_color::from_color(
-						payload.color
-						);
+					payload payload = trace_ray(ray, depth);
+					auto& history_pixel = history->item(x, y);
+					history_pixel +=
+							float3{
+									payload.color.r,
+									payload.color.g,
+									payload.color.b,
+							} * frame_weight;
+					render_target->item(x, y) = RT::from_float3(history_pixel);
+				}
 			}
 		}
 	}
@@ -232,20 +241,20 @@ namespace cg::renderer
 		// TODO Lab: 2.02 Adjust `trace_ray` method of `raytracer` class to traverse geometry and call a closest hit shader
 		// TODO Lab: 2.04 Adjust `trace_ray` method of `raytracer` to use `any_hit_shader`
 		// TODO Lab: 2.05 Adjust `trace_ray` method of `raytracer` class to traverse the acceleration structure
-		if (depth == 0){
+		if (depth == 0) {
 			return miss_shader(ray);
 		}
 		depth--;
 
-		payload closest_hit_payload {};
-		closest_hit_payload.t  = max_t;
+		payload closest_hit_payload{};
+		closest_hit_payload.t = max_t;
 
 		const triangle<VB>* closest_triangle = nullptr;
 
-		for (auto & aabb: acceleration_structures) {
+		for (auto& aabb: acceleration_structures) {
 			if (!aabb.aabb_test(ray))
 				continue;
-			for (auto& triangle: aabb.get_triangles()){
+			for (auto& triangle: aabb.get_triangles()) {
 				payload payload = intersection_shader(triangle, ray);
 				if (payload.t > min_t && payload.t < closest_hit_payload.t) {
 					closest_hit_payload = payload;
@@ -257,10 +266,9 @@ namespace cg::renderer
 		}
 
 		if (closest_hit_payload.t < max_t) {
-			if (closest_hit_shader){
+			if (closest_hit_shader) {
 				return closest_hit_shader(ray, closest_hit_payload, *closest_triangle, depth);
 			}
-
 		}
 		return miss_shader(ray);
 	}
@@ -289,7 +297,7 @@ namespace cg::renderer
 
 		payload.t = dot(triangle.ca, qvec) * inv_det;
 
-		payload.bary = float3 {1.f - u - v, u, v};
+		payload.bary = float3{1.f - u - v, u, v};
 
 		return payload;
 	}
@@ -305,7 +313,7 @@ namespace cg::renderer
 		float inv_base = 1.f / base_x;
 		float fraction = inv_base;
 
-		while(index > 0) {
+		while (index > 0) {
 			result.x += (index % base_x) * fraction;
 			index /= base_x;
 			fraction *= inv_base;
@@ -316,7 +324,7 @@ namespace cg::renderer
 		inv_base = 1.f / base_y;
 		fraction = inv_base;
 
-		while(index > 0) {
+		while (index > 0) {
 			result.y += (index % base_y) * fraction;
 			index /= base_y;
 			fraction *= inv_base;
