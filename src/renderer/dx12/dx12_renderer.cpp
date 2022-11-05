@@ -260,7 +260,11 @@ D3D12_VERTEX_BUFFER_VIEW cg::renderer::dx12_renderer::create_vertex_buffer_view(
 D3D12_INDEX_BUFFER_VIEW cg::renderer::dx12_renderer::create_index_buffer_view(const ComPtr<ID3D12Resource>& index_buffer, const UINT index_buffer_size)
 {
 	// TODO Lab: 3.04 Create index buffer views
-	return D3D12_INDEX_BUFFER_VIEW{};
+	D3D12_INDEX_BUFFER_VIEW view{};
+	view.BufferLocation = index_buffer->GetGPUVirtualAddress();
+	view.SizeInBytes = index_buffer_size;
+	view.Format = DXGI_FORMAT_R32_UINT;
+	return view;
 }
 
 void cg::renderer::dx12_renderer::create_shader_resource_view(const ComPtr<ID3D12Resource>& texture, D3D12_CPU_DESCRIPTOR_HANDLE cpu_handler)
@@ -317,9 +321,9 @@ void cg::renderer::dx12_renderer::load_assets()
 				vertex_buffers[i],
 				vertex_buffer_size);
 
-				// Index buffer
+		// Index buffer
 
-				auto index_buffer_data = model->get_index_buffers()[i];
+		auto index_buffer_data = model->get_index_buffers()[i];
 		const UINT index_buffer_size = static_cast<UINT>(
 				index_buffer_data->get_size_in_bytes());
 		std::wstring index_buffer_name(L"Index buffer ");
@@ -332,6 +336,10 @@ void cg::renderer::dx12_renderer::load_assets()
 		copy_data(index_buffer_data->get_data(),
 				  index_buffer_size,
 				  index_buffers[i]);
+
+		index_buffer_views[i] = create_index_buffer_view(
+				index_buffers[i],
+				index_buffer_size);
 	}
 
 	// Constant buffer
