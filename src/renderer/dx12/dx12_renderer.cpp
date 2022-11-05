@@ -11,7 +11,6 @@
 
 void cg::renderer::dx12_renderer::init()
 {
-	// TODO Lab: 3.01 Add `model` and `camera` creation code into `init` method of `dx12_renderer` class
 	model = std::make_shared<cg::world::model>();
 	model->load_obj(settings->model_path);
 
@@ -51,7 +50,6 @@ void cg::renderer::dx12_renderer::destroy()
 
 void cg::renderer::dx12_renderer::update()
 {
-	// TODO Lab: 3.08 Implement `update` method of `dx12_renderer`
 	auto now = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<float> duration = now - current_time;
 	frame_duration = duration.count();
@@ -64,7 +62,6 @@ void cg::renderer::dx12_renderer::update()
 
 void cg::renderer::dx12_renderer::render()
 {
-	// TODO Lab: 3.06 Implement `render` method
 	populate_command_list();
 	ID3D12CommandList* command_lists[] = {command_list.Get()};
 	command_queue->ExecuteCommandLists(
@@ -78,7 +75,6 @@ void cg::renderer::dx12_renderer::render()
 
 ComPtr<IDXGIFactory4> cg::renderer::dx12_renderer::get_dxgi_factory()
 {
-	// TODO Lab: 3.02 Enable a validation layer
 	UINT dxgi_factory_flags = 0;
 #ifdef _DEBUG
 	ComPtr<ID3D12Debug> debug_controller;
@@ -96,7 +92,6 @@ ComPtr<IDXGIFactory4> cg::renderer::dx12_renderer::get_dxgi_factory()
 
 void cg::renderer::dx12_renderer::initialize_device(ComPtr<IDXGIFactory4>& dxgi_factory)
 {
-	// TODO Lab: 3.02 Enumerate hardware adapters
 	ComPtr<IDXGIAdapter1> hardware_adapter;
 	dxgi_factory->EnumAdapters1(0, &hardware_adapter);
 #ifdef _DEBUG
@@ -105,7 +100,6 @@ void cg::renderer::dx12_renderer::initialize_device(ComPtr<IDXGIFactory4>& dxgi_
 	OutputDebugString(adapter_desc.Description);
 	OutputDebugString(L"\n");
 #endif
-	// TODO Lab: 3.02 Create a device object
 	THROW_IF_FAILED(D3D12CreateDevice(
 			hardware_adapter.Get(),
 			D3D_FEATURE_LEVEL_11_0,
@@ -114,7 +108,6 @@ void cg::renderer::dx12_renderer::initialize_device(ComPtr<IDXGIFactory4>& dxgi_
 
 void cg::renderer::dx12_renderer::create_direct_command_queue()
 {
-	// TODO Lab: 3.02 Create a command queue
 	D3D12_COMMAND_QUEUE_DESC queue_desc{};
 	queue_desc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
 	queue_desc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
@@ -125,7 +118,6 @@ void cg::renderer::dx12_renderer::create_direct_command_queue()
 
 void cg::renderer::dx12_renderer::create_swap_chain(ComPtr<IDXGIFactory4>& dxgi_factory)
 {
-	// TODO Lab: 3.02 Create a swap chain and bind it to window
 	DXGI_SWAP_CHAIN_DESC1 swap_chain_desc{};
 	swap_chain_desc.BufferCount = frame_number;
 	swap_chain_desc.Height = settings->height;
@@ -154,13 +146,11 @@ void cg::renderer::dx12_renderer::create_swap_chain(ComPtr<IDXGIFactory4>& dxgi_
 
 void cg::renderer::dx12_renderer::create_render_target_views()
 {
-	// TODO Lab: 3.04 Create a descriptor heap for render targets
 	rtv_heap.create_heap(
 			device,
 			D3D12_DESCRIPTOR_HEAP_TYPE_RTV,
 			frame_number);
 
-	// TODO Lab: 3.04 Create render target views
 	for (UINT i = 0; i < frame_number; i++) {
 		THROW_IF_FAILED(
 				swap_chain->GetBuffer(i, IID_PPV_ARGS(&render_targets[i])));
@@ -180,7 +170,6 @@ void cg::renderer::dx12_renderer::create_depth_buffer()
 
 void cg::renderer::dx12_renderer::create_command_allocators()
 {
-	// TODO Lab: 3.06 Create command allocators and a command list
 	for (auto& command_allocator: command_allocators) {
 		THROW_IF_FAILED(
 				device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&command_allocator)));
@@ -189,7 +178,6 @@ void cg::renderer::dx12_renderer::create_command_allocators()
 
 void cg::renderer::dx12_renderer::create_command_list()
 {
-	// TODO Lab: 3.06 Create command allocators and a command list
 	THROW_IF_FAILED(device->CreateCommandList(
 			0,
 			D3D12_COMMAND_LIST_TYPE_DIRECT,
@@ -201,12 +189,10 @@ void cg::renderer::dx12_renderer::create_command_list()
 
 void cg::renderer::dx12_renderer::load_pipeline()
 {
-	// TODO Lab: 3.02 Bring everything together in `load_pipeline` method
 	ComPtr<IDXGIFactory4> dxgi_factory = get_dxgi_factory();
 	initialize_device(dxgi_factory);
 	create_direct_command_queue();
 	create_swap_chain(dxgi_factory);
-	// TODO Lab: 3.04 Create render target views
 	create_render_target_views();
 }
 
@@ -218,7 +204,6 @@ D3D12_STATIC_SAMPLER_DESC cg::renderer::dx12_renderer::get_sampler_descriptor()
 
 void cg::renderer::dx12_renderer::create_root_signature(const D3D12_STATIC_SAMPLER_DESC* sampler_descriptors, UINT num_sampler_descriptors)
 {
-	// TODO Lab: 3.05 Create a descriptor table and a root signature
 	CD3DX12_ROOT_PARAMETER1 root_parameters[1];
 	CD3DX12_DESCRIPTOR_RANGE1 ranges[1];
 
@@ -277,7 +262,6 @@ void cg::renderer::dx12_renderer::create_root_signature(const D3D12_STATIC_SAMPL
 
 std::filesystem::path cg::renderer::dx12_renderer::get_shader_path(const std::string& shader_name)
 {
-	// TODO Lab: 3.05 Compile shaders
 	WCHAR buffer[MAX_PATH];
 	GetModuleFileName(nullptr, buffer, MAX_PATH);
 	auto shader_path = std::filesystem::path(buffer).parent_path() / shader_name;
@@ -286,7 +270,6 @@ std::filesystem::path cg::renderer::dx12_renderer::get_shader_path(const std::st
 
 ComPtr<ID3DBlob> cg::renderer::dx12_renderer::compile_shader(const std::filesystem::path& shader_path, const std::string& entrypoint, const std::string& target)
 {
-	// TODO Lab: 3.05 Compile shaders
 	ComPtr<ID3DBlob> shader;
 	ComPtr<ID3DBlob> error;
 	UINT compiler_flags = 0;
@@ -312,7 +295,6 @@ ComPtr<ID3DBlob> cg::renderer::dx12_renderer::compile_shader(const std::filesyst
 
 void cg::renderer::dx12_renderer::create_pso(const std::string& shader_name)
 {
-	// TODO Lab: 3.05 Compile shaders
 	ComPtr<ID3DBlob> vertex_shader = compile_shader(
 			get_shader_path(shader_name),
 			"VSMain",
@@ -321,7 +303,6 @@ void cg::renderer::dx12_renderer::create_pso(const std::string& shader_name)
 			get_shader_path(shader_name),
 			"PSMain",
 			"ps_5_0");
-	// TODO Lab: 3.05 Setup a PSO descriptor and create a PSO
 	D3D12_INPUT_ELEMENT_DESC input_descriptors[] = {
 			{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
 			{"NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
@@ -354,7 +335,6 @@ void cg::renderer::dx12_renderer::create_pso(const std::string& shader_name)
 
 void cg::renderer::dx12_renderer::create_resource_on_upload_heap(ComPtr<ID3D12Resource>& resource, UINT size, const std::wstring& name)
 {
-	// TODO Lab: 3.03 Implement resource creation on upload heap
 	device->CreateCommittedResource(
 			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
 			D3D12_HEAP_FLAG_NONE,
@@ -374,7 +354,6 @@ void cg::renderer::dx12_renderer::create_resource_on_default_heap(ComPtr<ID3D12R
 
 void cg::renderer::dx12_renderer::copy_data(const void* buffer_data, UINT buffer_size, ComPtr<ID3D12Resource>& destination_resource)
 {
-	// TODO Lab: 3.03 Implement map, unmap, and copying data to the resource
 	UINT8* buffer_data_begin;
 	CD3DX12_RANGE read_range(0, 0);
 	THROW_IF_FAILED(destination_resource->Map(0, &read_range,
@@ -389,7 +368,6 @@ void cg::renderer::dx12_renderer::copy_data(const void* buffer_data, const UINT 
 
 D3D12_VERTEX_BUFFER_VIEW cg::renderer::dx12_renderer::create_vertex_buffer_view(const ComPtr<ID3D12Resource>& vertex_buffer, const UINT vertex_buffer_size)
 {
-	// TODO Lab: 3.04 Create vertex buffer views
 	D3D12_VERTEX_BUFFER_VIEW view{};
 	view.BufferLocation = vertex_buffer->GetGPUVirtualAddress();
 	view.StrideInBytes = sizeof(vertex);
@@ -399,7 +377,6 @@ D3D12_VERTEX_BUFFER_VIEW cg::renderer::dx12_renderer::create_vertex_buffer_view(
 
 D3D12_INDEX_BUFFER_VIEW cg::renderer::dx12_renderer::create_index_buffer_view(const ComPtr<ID3D12Resource>& index_buffer, const UINT index_buffer_size)
 {
-	// TODO Lab: 3.04 Create index buffer views
 	D3D12_INDEX_BUFFER_VIEW view{};
 	view.BufferLocation = index_buffer->GetGPUVirtualAddress();
 	view.SizeInBytes = index_buffer_size;
@@ -413,7 +390,6 @@ void cg::renderer::dx12_renderer::create_shader_resource_view(const ComPtr<ID3D1
 
 void cg::renderer::dx12_renderer::create_constant_buffer_view(const ComPtr<ID3D12Resource>& buffer, D3D12_CPU_DESCRIPTOR_HANDLE cpu_handler)
 {
-	// TODO Lab: 3.04 Create a constant buffer view
 	D3D12_CONSTANT_BUFFER_VIEW_DESC cbv_desc{};
 	cbv_desc.BufferLocation = buffer->GetGPUVirtualAddress();
 	cbv_desc.SizeInBytes = (sizeof(cb) + 255) & ~255;
@@ -423,27 +399,21 @@ void cg::renderer::dx12_renderer::create_constant_buffer_view(const ComPtr<ID3D1
 
 void cg::renderer::dx12_renderer::load_assets()
 {
-	// TODO Lab: 3.05 Create a descriptor table and a root signature
-	// TODO Lab: 3.05 Setup a PSO descriptor and create a PSO
 	create_root_signature(nullptr, 0);
 	create_pso("shaders.hlsl");
-	// TODO Lab: 3.06 Create command allocators and a command list
 	create_command_allocators();
 	create_command_list();
-	// TODO Lab: 3.04 Create a descriptor heap for a constant buffer
 	cbv_srv_heap.create_heap(
 			device,
 			D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
 			1,
 			D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE);
 
-	// TODO Lab: 3.03 Allocate memory for vertex and index buffers
 	vertex_buffers.resize(model->get_vertex_buffers().size());
 	vertex_buffer_views.resize(model->get_vertex_buffers().size());
 	index_buffers.resize(model->get_index_buffers().size());
 	index_buffer_views.resize(model->get_index_buffers().size());
 
-	// TODO Lab: 3.03 Create committed resources for vertex, index and constant buffers on upload heap
 	for (size_t i = 0; i < model->get_index_buffers().size(); i++) {
 		// Vertex buffer
 		auto vertex_buffer_data = model->get_vertex_buffers()[i];
@@ -501,14 +471,9 @@ void cg::renderer::dx12_renderer::load_assets()
 
 	create_constant_buffer_view(constant_buffer, cbv_srv_heap.get_cpu_descriptor_handle(0));
 
-	// TODO Lab: 3.03 Copy resource data to suitable resources
-	// TODO Lab: 3.04 Create vertex buffer views
 
-	// TODO Lab: 3.04 Create index buffer views
 
-	// TODO Lab: 3.04 Create a constant buffer view
 
-	// TODO Lab: 3.07 Create a fence and fence event
 	THROW_IF_FAILED(command_list->Close());
 
 	THROW_IF_FAILED(device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence)));
@@ -523,7 +488,6 @@ void cg::renderer::dx12_renderer::load_assets()
 
 void cg::renderer::dx12_renderer::populate_command_list()
 {
-	// TODO Lab: 3.06 Implement `populate_command_list` method
 	// Reset
 	THROW_IF_FAILED(command_allocators[frame_index]->Reset());
 	THROW_IF_FAILED(command_list->Reset(
@@ -585,7 +549,6 @@ void cg::renderer::dx12_renderer::populate_command_list()
 
 void cg::renderer::dx12_renderer::move_to_next_frame()
 {
-	// TODO Lab: 3.07 Implement `move_to_next_frame` method
 	const UINT64 current_fence_value = fence_values[frame_index];
 	THROW_IF_FAILED(command_queue->Signal(fence.Get(), current_fence_value));
 	frame_index = swap_chain->GetCurrentBackBufferIndex();
@@ -600,7 +563,6 @@ void cg::renderer::dx12_renderer::move_to_next_frame()
 
 void cg::renderer::dx12_renderer::wait_for_gpu()
 {
-	// TODO Lab: 3.07 Implement `wait_for_gpu` method
 	THROW_IF_FAILED(command_queue->Signal(fence.Get(), fence_values[frame_index]));
 	THROW_IF_FAILED(fence->SetEventOnCompletion(fence_values[frame_index], fence_event));
 	WaitForSingleObjectEx(fence_event, INFINITE, FALSE);
@@ -610,7 +572,6 @@ void cg::renderer::dx12_renderer::wait_for_gpu()
 
 void cg::renderer::descriptor_heap::create_heap(ComPtr<ID3D12Device>& device, D3D12_DESCRIPTOR_HEAP_TYPE type, UINT number, D3D12_DESCRIPTOR_HEAP_FLAGS flags)
 {
-	// TODO Lab: 3.04 Implement `create_heap`, `get_cpu_descriptor_handle`, `get_gpu_descriptor_handle`, and `get` methods of `cg::renderer::descriptor_heap`
 	D3D12_DESCRIPTOR_HEAP_DESC heap_desc{};
 	heap_desc.NumDescriptors = number;
 	heap_desc.Type = type;
@@ -624,7 +585,6 @@ void cg::renderer::descriptor_heap::create_heap(ComPtr<ID3D12Device>& device, D3
 
 D3D12_CPU_DESCRIPTOR_HANDLE cg::renderer::descriptor_heap::get_cpu_descriptor_handle(UINT index) const
 {
-	// TODO Lab: 3.04 Implement `create_heap`, `get_cpu_descriptor_handle`, `get_gpu_descriptor_handle`, and `get` methods of `cg::renderer::descriptor_heap`
 	return CD3DX12_CPU_DESCRIPTOR_HANDLE(
 			heap->GetCPUDescriptorHandleForHeapStart(),
 			static_cast<INT>(index),
@@ -633,7 +593,6 @@ D3D12_CPU_DESCRIPTOR_HANDLE cg::renderer::descriptor_heap::get_cpu_descriptor_ha
 
 D3D12_GPU_DESCRIPTOR_HANDLE cg::renderer::descriptor_heap::get_gpu_descriptor_handle(UINT index) const
 {
-	// TODO Lab: 3.04 Implement `create_heap`, `get_cpu_descriptor_handle`, `get_gpu_descriptor_handle`, and `get` methods of `cg::renderer::descriptor_heap`
 	return CD3DX12_GPU_DESCRIPTOR_HANDLE(
 			heap->GetGPUDescriptorHandleForHeapStart(),
 			static_cast<INT>(index),
@@ -641,6 +600,5 @@ D3D12_GPU_DESCRIPTOR_HANDLE cg::renderer::descriptor_heap::get_gpu_descriptor_ha
 }
 ID3D12DescriptorHeap* cg::renderer::descriptor_heap::get() const
 {
-	// TODO Lab: 3.04 Implement `create_heap`, `get_cpu_descriptor_handle`, `get_gpu_descriptor_handle`, and `get` methods of `cg::renderer::descriptor_heap`
 	return heap.Get();
 }
