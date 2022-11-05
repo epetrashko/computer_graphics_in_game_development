@@ -501,6 +501,13 @@ void cg::renderer::dx12_renderer::load_assets()
 	// TODO Lab: 3.04 Create a constant buffer view
 
 	// TODO Lab: 3.07 Create a fence and fence event
+	THROW_IF_FAILED(device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence)));
+	fence_event = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+	if (fence_event == nullptr) {
+		THROW_IF_FAILED(HRESULT_FROM_WIN32(GetLastError()));
+	}
+
+	wait_for_gpu();
 }
 
 
