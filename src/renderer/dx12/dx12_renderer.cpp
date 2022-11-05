@@ -501,6 +501,8 @@ void cg::renderer::dx12_renderer::load_assets()
 	// TODO Lab: 3.04 Create a constant buffer view
 
 	// TODO Lab: 3.07 Create a fence and fence event
+	THROW_IF_FAILED(command_list->Close());
+
 	THROW_IF_FAILED(device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence)));
 	fence_event = CreateEvent(nullptr, FALSE, FALSE, nullptr);
 	if (fence_event == nullptr) {
@@ -524,9 +526,10 @@ void cg::renderer::dx12_renderer::populate_command_list()
 	command_list->SetGraphicsRootSignature(root_signature.Get());
 	ID3D12DescriptorHeap* heaps[] = {cbv_srv_heap.get()};
 	command_list->SetDescriptorHeaps(_countof(heaps), heaps);
-	command_list->SetComputeRootDescriptorTable(0, cbv_srv_heap.get_gpu_descriptor_handle(0));
+	command_list->SetGraphicsRootDescriptorTable(0, cbv_srv_heap.get_gpu_descriptor_handle(0));
 	command_list->RSSetViewports(1, &view_port);
 	command_list->RSSetScissorRects(1, &scissor_rect);
+	command_list->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	D3D12_RESOURCE_BARRIER begin_barriers[] = {
 			CD3DX12_RESOURCE_BARRIER::Transition(
