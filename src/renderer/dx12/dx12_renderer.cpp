@@ -34,8 +34,8 @@ void cg::renderer::dx12_renderer::init()
 	view_port = CD3DX12_VIEWPORT(0.f, 0.f, static_cast<float>(settings->width),
 								 static_cast<float>(settings->height));
 
-	scissor_rect = CD3DX12_RECT(0.f,
-								0.f,
+	scissor_rect = CD3DX12_RECT(0L,
+								0L,
 								static_cast<LONG>(settings->width),
 								static_cast<LONG>(settings->height));
 
@@ -67,7 +67,7 @@ ComPtr<IDXGIFactory4> cg::renderer::dx12_renderer::get_dxgi_factory()
 	ComPtr<ID3D12Debug> debug_controller;
 	if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debug_controller)))) {
 		debug_controller->EnableDebugLayer();
-		dxgi_factory_flags != DXGI_CREATE_FACTORY_DEBUG;
+		dxgi_factory_flags = DXGI_CREATE_FACTORY_DEBUG;
 	}
 #endif
 
@@ -144,6 +144,17 @@ void cg::renderer::dx12_renderer::create_render_target_views()
 			frame_number);
 
 	// TODO Lab: 3.04 Create render target views
+	for (UINT i = 0; i < frame_number; i++) {
+		THROW_IF_FAILED(
+				swap_chain->GetBuffer(i, IID_PPV_ARGS(&render_targets[i])));
+		device->CreateRenderTargetView(
+				render_targets[i].Get(),
+				nullptr,
+				rtv_heap.get_cpu_descriptor_handle(i));
+		std::wstring name(L"Render target");
+		name += std::to_wstring(i);
+		render_targets[i]->SetName(name.c_str());
+	}
 }
 
 void cg::renderer::dx12_renderer::create_depth_buffer()
@@ -169,6 +180,7 @@ void cg::renderer::dx12_renderer::load_pipeline()
 	create_direct_command_queue();
 	create_swap_chain(dxgi_factory);
 	// TODO Lab: 3.04 Create render target views
+	create_render_target_views();
 }
 
 D3D12_STATIC_SAMPLER_DESC cg::renderer::dx12_renderer::get_sampler_descriptor()
