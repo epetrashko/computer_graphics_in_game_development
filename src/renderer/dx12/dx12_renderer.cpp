@@ -275,6 +275,11 @@ void cg::renderer::dx12_renderer::load_assets()
 	// TODO Lab: 3.06 Create command allocators and a command list
 
 	// TODO Lab: 3.04 Create a descriptor heap for a constant buffer
+	cbv_srv_heap.create_heap(
+			device,
+			D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
+			1,
+			D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE);
 
 	// TODO Lab: 3.03 Allocate memory for vertex and index buffers
 	vertex_buffers.resize(model->get_vertex_buffers().size());
@@ -328,11 +333,6 @@ void cg::renderer::dx12_renderer::load_assets()
 					reinterpret_cast<void**>(&constant_buffer_data_begin)));
 	// TODO Lab: 3.03 Copy resource data to suitable resources
 	// TODO Lab: 3.04 Create vertex buffer views
-	cbv_srv_heap.create_heap(
-			device,
-			D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
-			1,
-			D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE);
 	// TODO Lab: 3.04 Create index buffer views
 
 	// TODO Lab: 3.04 Create a constant buffer view
